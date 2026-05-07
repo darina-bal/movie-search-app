@@ -26,19 +26,21 @@ $(function () {
     function showMovie (movieName) {
         $.ajax({
             url: `http://www.omdbapi.com/?apikey=80890c32&s=${movieName}`,
-            success: function (res) {
+            success: function ( res, textStatus, jqXHR ) {
                 if ( res.Response != 'True' ) { 
+                    alert(`Error: ${res.Error}`);
                     $('.movies-not-found').css( {'display': 'block'} );
+                    moviesNode.empty();
                     return; 
                 }
                 moviesNode.empty();
                 $('.movies-not-found').css( {'display': 'none'} );
-
+                
                 $.each( res.Search, function (i, el) {
                     let templateMovieCart = `
-                        <a href="./movie_page.html" class="movie">
+                        <a href="./movie_page.html?imdbID=${el.imdbID}" class="movie">
                             <picture class="movie-search-picture">
-                                <img src="${el.Poster}" alt="${el.Title}">
+                                <img src="${el.Poster}" alt="${el.Title}" onerror="this.src='./assets/images/hqdefault.jpg';">
                             </picture>
                             <div class="film-search-info">
                                 <h2 class="title">${el.Title}</h2>
@@ -48,10 +50,10 @@ $(function () {
                         </a>
                     `;
                     moviesNode.append(templateMovieCart);
-                } )
+                })
             },
             error: function ( jqXHR, exception ) {
-            if (jqXHR.status === 0) {
+                if (jqXHR.status === 0) {
                     alert('Not connect. Verify Network.');
                 } else if (jqXHR.status == 404) {
                     alert('Requested page not found (404).');
@@ -66,7 +68,7 @@ $(function () {
                 } else {
                     alert('Uncaught Error. ' + jqXHR.responseText);
                 }
-            }
+            } 
         })
     }
 })
